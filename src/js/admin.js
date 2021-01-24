@@ -144,7 +144,7 @@ $(function () {
         //console.log('nav clicked ' + this.id);
 
         if (this.id == 'nav-ref-main') {
-            location.assign('..');
+            location.assign('../');
 
             return false;
         }
