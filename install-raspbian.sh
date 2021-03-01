@@ -220,7 +220,7 @@ else
 fi
 
 info "### Now we are going to install Photobooth."
-git clone https://github.com/andi34/photobooth $INSTALLFOLDER
+git clone https://github.com/metropo/photobooth $INSTALLFOLDER
 cd $INSTALLFOLDERPATH
 
 echo -e "\033[0;33m### Please select a version to install:"
