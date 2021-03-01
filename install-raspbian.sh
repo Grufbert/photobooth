@@ -6,7 +6,7 @@ set -e
 # Show all commands
 # set -x
 
-RUNNING_ON_PI=true 
+RUNNING_ON_PI=true
 
 if [ ! -z $1 ]; then
     webserver=$1
@@ -23,8 +23,8 @@ function error {
 }
 
 function no_raspberry {
-    error "WARNING: This reset script is only intended to run on a Raspberry Pi."
-    info "Running the script in ubuntu is possible, but PI specific features will be missing!"
+    info "WARNING: This reset script is intended to run on a Raspberry Pi."
+    info "Running the script on other devices running Debian / a Debian based distribution is possible, but PI specific features will be missing!"
     read -p "Do you want to continue? (y/n)" -n 1 -r
     if [[ $REPLY =~ ^[Yy]$ ]]
     then
@@ -43,7 +43,7 @@ if [ ! -f /proc/device-tree/model ]; then
     no_raspberry 2
 else
     PI_MODEL=$(tr -d '\0' </proc/device-tree/model)
-    
+
     if [[ $PI_MODEL != Raspberry* ]]; then
         no_raspberry 3
     fi
@@ -56,6 +56,7 @@ else
 fi
 
 COMMON_PACKAGES=(
+    'curl'
     'git'
     'gphoto2'
     'ffmpeg'
@@ -65,7 +66,6 @@ COMMON_PACKAGES=(
     'npm'
     'php-gd'
     'php-zip'
-    'curl'
     'yarn'
     'rsync'
     'udisks2'
@@ -228,7 +228,6 @@ echo -e "    1 Install last development version"
 echo -e "    2 Install last stable Release"
 read -p "Please enter your choice: " -n 1 -r
 echo -e "\033[0m"
-
 if [[ $REPLY =~ ^[1]$ ]]
 then
   info "### We are installing last development version"
@@ -250,6 +249,7 @@ info "### Get yourself a hot beverage. The following step can take up to 15 minu
 yarn install
 yarn build
 
+# Pi specific setup start
 if [ "$RUNNING_ON_PI" = true ]; then
 echo -e "\033[0;33m### Do you like to use a Raspberry Pi (HQ) Camera to take pictures?"
 read -p "### If yes, this will generate a personal configuration with all needed changes. [y/N] " -n 1 -r
@@ -268,6 +268,8 @@ then
 EOF
 fi
 fi
+# Pi specific setup end
+
 info "### Setting permissions."
 chown -R www-data:www-data $INSTALLFOLDERPATH
 gpasswd -a www-data plugdev
@@ -290,13 +292,15 @@ then
     gpasswd -a www-data lpadmin
 fi
 
+# Pi specific setup start
+if [ "$RUNNING_ON_PI" = true ]; then
 echo -e "\033[0;33m### You probably like to start the browser on every start."
 read -p "### Open Chromium in Kiosk Mode at every boot and hide the mouse cursor? [y/N] " -n 1 -r
 echo -e "\033[0m"
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
     apt install -y unclutter
-if [ "$RUNNING_ON_PI" = true ]; then
+
     cat >> /etc/xdg/lxsession/LXDE-pi/autostart <<EOF
 
 @xset s off
@@ -307,12 +311,9 @@ if [ "$RUNNING_ON_PI" = true ]; then
 @unclutter -idle 3
 
 EOF
-else
-    error "not implemented yet!"
-fi
+
 fi
 
-if [ "$RUNNING_ON_PI" = true ]; then
 info "### Enable Nodejs GPIO access - please reboot in order to use the Remote Buzzer Feature"
 usermod -a -G gpio www-data
 cat > /etc/udev/rules.d/20-photobooth-gpiomem.rules <<EOF
@@ -354,15 +355,16 @@ EOF
 
 fi
 fi
+# Pi specific setup end
 
 info "### Congratulations you finished the install process."
-info "### Have fun with your Photobooth, but first restart your Pi."
+info "### Have fun with your Photobooth, but first restart your device."
 
 echo -e "\033[0;33m"
 read -p "### Do you like to reboot now? [y/N] " -n 1 -r
 echo -e "\033[0m"
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-    info "### Your Raspberry Pi will reboot now."
+    info "### Your device will reboot now."
     shutdown -r now
 fi
