@@ -13,3 +13,6 @@
 [submodule "vendor/phpqrcode"]
 	path = vendor/phpqrcode
 	url = https://github.com/andi34/phpqrcode
+[submodule "vendor/CustomUbuntu"]
+	path = vendor/CustomUbuntu
+	url = https://github.com/mvallim/live-custom-ubuntu-from-scratch.git
