@@ -49,7 +49,8 @@ function customize_image() {
     curl \
     vim \
     nano \
-    less
+    less \
+    openssh-server
 
     # purge
     apt-get purge -y \
@@ -59,7 +60,10 @@ function customize_image() {
     gnome-mines \
     gnome-sudoku \
     aisleriot \
-    hitori
+    hitori \
+    libreoffice* \
+    thunderbird
+
 
     #install photobooth
     pwd
