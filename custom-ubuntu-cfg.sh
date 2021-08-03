@@ -71,6 +71,10 @@ function customize_image() {
     ls -l root/
     chmod +x root/install-raspbian.sh
     root/install-raspbian.sh apache silent
+
+    # configure OS
+    gsettings set org.gnome.settings-daemon.plugins.power idle-dim false
+    gsettings set org.gnome.desktop.session idle-delay 0
 }
 
 # Used to version the configuration.  If breaking changes occur, manual
