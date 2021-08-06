@@ -232,7 +232,7 @@ else
 fi
 
 info "### Now we are going to install Photobooth."
-git clone https://github.com/andi34/photobooth $INSTALLFOLDER
+git clone https://github.com/metropo/photobooth $INSTALLFOLDER
 cd $INSTALLFOLDERPATH
 LATEST_VERSION=$( git describe --tags `git rev-list --tags --max-count=1` )
 
