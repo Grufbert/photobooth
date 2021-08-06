@@ -72,6 +72,21 @@ function customize_image() {
     chmod +x root/install-raspbian.sh
     root/install-raspbian.sh apache silent
 
+    #automatic loading of v4l loopback kernal module for live preview
+    echo "v4l2loopback" >> /etc/modules
+    echo "options v4l2loopback exclusive_caps=1 card_label=\"GPhoto2 Webcam\"" >> /etc/modprobe.d/v4l2loopback_options.conf
+
+    #autostart firefox
+    tee /etc/xdg/autostart/photobooth-kiosk.desktop << END
+[Desktop Entry]
+Type=Application
+Name=Photobooth
+Exec=firefox --kiosk http://localhost
+OnlyShowIn=GNOME;
+AutostartCondition=GSettings org.gnome.desktop.background show-desktop-icons
+END
+    
+
     # configure OS
     gsettings set org.gnome.settings-daemon.plugins.power idle-dim false
     gsettings set org.gnome.desktop.session idle-delay 0
