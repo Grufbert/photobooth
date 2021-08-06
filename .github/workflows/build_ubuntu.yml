@@ -35,12 +35,11 @@ jobs:
         run: |
           cd vendor/CustomUbuntu/scripts
           gzip photobooth.iso
-# unfortunatley github does not seem to like huge (2GB) artifacts :(
-#      - name: Publish ISO
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: photobooth.iso.gz
-#          path: vendor/CustomUbuntu/scripts/photobooth.iso.gz
+      - name: Publish ISO
+        uses: actions/upload-artifact@v2
+        with:
+          name: photobooth.iso.gz
+          path: vendor/CustomUbuntu/scripts/photobooth.iso.gz
       - name: deploy file
         uses: wlixcc/SFTP-Deploy-Action@v1.0
         with:
