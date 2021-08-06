@@ -73,6 +73,7 @@ function customize_image() {
     root/install-raspbian.sh apache silent
 
     #automatic loading of v4l loopback kernal module for live preview
+    apt-get install -y v4l2loopback-dkms
     echo "v4l2loopback" >> /etc/modules
     echo "options v4l2loopback exclusive_caps=1 card_label=\"GPhoto2 Webcam\"" >> /etc/modprobe.d/v4l2loopback_options.conf
 
