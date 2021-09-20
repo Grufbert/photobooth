@@ -111,6 +111,12 @@ $configsetup = [
             'name' => 'dev[enabled]',
             'value' => $config['dev']['enabled'],
         ],
+        'dev_demo_images' => [
+            'view' => 'expert',
+            'type' => 'checkbox',
+            'name' => 'dev[demo_images]',
+            'value' => $config['dev']['demo_images'],
+        ],
         'dev_debugpanel' => [
             'view' => 'expert',
             'type' => 'button',
@@ -204,10 +210,10 @@ $configsetup = [
             'placeholder' => $defaultConfig['picture']['time_to_live'],
             'name' => 'picture[time_to_live]',
             'value' => $config['picture']['time_to_live'],
-            'range_min' => 1000,
-            'range_max' => 90000,
-            'range_step' => 1000,
-            'unit' => 'milliseconds',
+            'range_min' => 1,
+            'range_max' => 90,
+            'range_step' => 1,
+            'unit' => 'seconds',
         ],
         'picture_preview_before_processing' => [
             'view' => 'expert',
@@ -248,6 +254,13 @@ $configsetup = [
             'name' => 'DISKUSAGEBUTTON',
             'value' => 'diskusage-btn',
         ],
+        'dependencies_button' => [
+            'view' => 'basic',
+            'type' => 'button',
+            'placeholder' => 'dependencies_check',
+            'name' => 'DEPENDENCIESBUTTON',
+            'value' => 'dependencies-btn',
+        ],
     ],
     'frontpage' => [
         'view' => 'basic',
@@ -256,6 +269,12 @@ $configsetup = [
             'type' => 'checkbox',
             'name' => 'ui[show_fork]',
             'value' => $config['ui']['show_fork'],
+        ],
+        'ui_skip_welcome' => [
+            'view' => 'advanced',
+            'type' => 'checkbox',
+            'name' => 'ui[skip_welcome]',
+            'value' => $config['ui']['skip_welcome'],
         ],
         'ui_github' => [
             'view' => 'expert',
@@ -435,7 +454,6 @@ $configsetup = [
             'placeholder' => $defaultConfig['picture']['naming'],
             'options' => [
                 'dateformatted' => 'Date formatted',
-                'numbered' => 'Numbered',
                 'random' => 'Random',
             ],
             'value' => $config['picture']['naming'],
@@ -526,14 +544,9 @@ $configsetup = [
         ],
         'textonpicture_font_color' => [
             'view' => 'expert',
-            'type' => 'select',
+            'type' => 'color',
             'name' => 'textonpicture[font_color]',
             'placeholder' => $defaultConfig['textonpicture']['font_color'],
-            'options' => [
-                'white' => 'white',
-                'grey' => 'grey',
-                'black' => 'black',
-            ],
             'value' => $config['textonpicture']['font_color'],
         ],
         'textonpicture_font_size' => [
@@ -588,7 +601,7 @@ $configsetup = [
             'name' => 'collage[continuous_time]',
             'placeholder' => $defaultConfig['collage']['continuous_time'],
             'value' => $config['collage']['continuous_time'],
-            'range_min' => 1,
+            'range_min' => 0,
             'range_max' => 20,
             'range_step' => 1,
             'unit' => 'seconds',
@@ -697,14 +710,9 @@ $configsetup = [
         ],
         'textoncollage_font_color' => [
             'view' => 'expert',
-            'type' => 'select',
+            'type' => 'color',
             'name' => 'textoncollage[font_color]',
             'placeholder' => $defaultConfig['textoncollage']['font_color'],
-            'options' => [
-                'white' => 'white',
-                'grey' => 'grey',
-                'black' => 'black',
-            ],
             'value' => $config['textoncollage']['font_color'],
         ],
         'textoncollage_font_size' => [
@@ -1186,14 +1194,9 @@ $configsetup = [
         ],
         'textonprint_font_color' => [
             'view' => 'expert',
-            'type' => 'select',
+            'type' => 'color',
             'name' => 'textonprint[font_color]',
             'placeholder' => $defaultConfig['textonprint']['font_color'],
-            'options' => [
-                'white' => 'white',
-                'grey' => 'grey',
-                'black' => 'black',
-            ],
             'value' => $config['textonprint']['font_color'],
         ],
         'textonprint_font_size' => [
@@ -1454,6 +1457,17 @@ $configsetup = [
             'name' => 'remotebuzzer[enable_standalonegallery]',
             'value' => $config['remotebuzzer']['enable_standalonegallery'],
         ],
+        'remotebuzzer_debounce' => [
+            'view' => 'expert',
+            'type' => 'range',
+            'placeholder' => $defaultConfig['remotebuzzer']['debounce'],
+            'name' => 'remotebuzzer[debounce]',
+            'value' => $config['remotebuzzer']['debounce'],
+            'range_min' => 0,
+            'range_max' => 100,
+            'range_step' => 5,
+            'unit' => 'milliseconds',
+        ],
         'remotebuzzer_logfile' => [
             'view' => 'expert',
             'type' => 'hidden',
@@ -1502,6 +1516,42 @@ $configsetup = [
             'value' => $config['synctodrive']['logfile'],
         ],
     ],
+    'get_request' => [
+        'view' => 'advanced',
+        'get_request_countdown' => [
+            'view' => 'basic',
+            'type' => 'checkbox',
+            'name' => 'get_request[countdown]',
+            'value' => $config['get_request']['countdown'],
+        ],
+        'get_request_processed' => [
+            'view' => 'basic',
+            'type' => 'checkbox',
+            'name' => 'get_request[processed]',
+            'value' => $config['get_request']['processed'],
+        ],
+        'get_request_server' => [
+            'view' => 'advanced',
+            'type' => 'input',
+            'placeholder' => 'http://xxx.xxx.xxx.xxx',
+            'name' => 'get_request[server]',
+            'value' => htmlentities($config['get_request']['server']),
+        ],
+        'get_request_picture' => [
+            'view' => 'advanced',
+            'type' => 'input',
+            'placeholder' => $defaultConfig['get_request']['picture'],
+            'name' => 'get_request[picture]',
+            'value' => htmlentities($config['get_request']['picture']),
+        ],
+        'get_request_collage' => [
+            'view' => 'advanced',
+            'type' => 'input',
+            'placeholder' => $defaultConfig['get_request']['collage'],
+            'name' => 'get_request[collage]',
+            'value' => htmlentities($config['get_request']['collage']),
+        ],
+    ],
     'authentication' => [
         'view' => 'basic',
         'login_enabled' => [
@@ -1535,6 +1585,18 @@ $configsetup = [
             'type' => 'checkbox',
             'name' => 'protect[localhost_admin]',
             'value' => $config['protect']['localhost_admin'],
+        ],
+        'protect_update' => [
+            'view' => 'advanced',
+            'type' => 'checkbox',
+            'name' => 'protect[update]',
+            'value' => $config['protect']['update'],
+        ],
+        'protect_localhost_update' => [
+            'view' => 'expert',
+            'type' => 'checkbox',
+            'name' => 'protect[localhost_update]',
+            'value' => $config['protect']['localhost_update'],
         ],
         'protect_index' => [
             'view' => 'advanced',
@@ -1586,6 +1648,12 @@ $configsetup = [
             'type' => 'checkbox',
             'name' => 'button[homescreen]',
             'value' => $config['button']['homescreen'],
+        ],
+        'ui_result_buttons' => [
+            'view' => 'advanced',
+            'type' => 'checkbox',
+            'name' => 'ui[result_buttons]',
+            'value' => $config['ui']['result_buttons'],
         ],
         'ui_font_size' => [
             'view' => 'advanced',
@@ -1846,6 +1914,13 @@ $configsetup = [
             'name' => 'nodebin[cmd]',
             'value' => htmlentities($config['nodebin']['cmd']),
         ],
+        'reboot_cmd' => [
+            'view' => 'expert',
+            'type' => 'input',
+            'placeholder' => $defaultConfig['reboot']['cmd'],
+            'name' => 'reboot[cmd]',
+            'value' => htmlentities($config['reboot']['cmd']),
+        ],
         'shutdown_cmd' => [
             'view' => 'expert',
             'type' => 'input',
@@ -1952,10 +2027,35 @@ $configsetup = [
         'view' => 'basic',
         'check_version' => [
             'view' => 'basic',
-            'type' => 'button',
+            'type' => 'hidden',
             'placeholder' => 'check_version',
             'name' => 'CHECKVERSIONBUTTON',
             'value' => 'checkversion-btn',
+        ],
+        'updater_button' => [
+            'view' => 'basic',
+            'type' => 'button',
+            'placeholder' => 'updater',
+            'name' => 'UPDATERBUTTON',
+            'value' => 'updater-btn',
+        ],
+    ],
+    'power' => [
+        'view' => 'basic',
+        'platform' => 'linux',
+        'reboot_button' => [
+            'view' => 'basic',
+            'type' => 'button',
+            'placeholder' => 'reboot_button',
+            'name' => 'REBOOTBUTTON',
+            'value' => 'reboot-btn',
+        ],
+        'shutdown_button' => [
+            'view' => 'basic',
+            'type' => 'button',
+            'placeholder' => 'shutdown_button',
+            'name' => 'SHUTDOWNBUTTON',
+            'value' => 'shutdown-btn',
         ],
     ],
 ];

@@ -252,7 +252,7 @@ and add the following lines:
 @xset s off
 @xset -dpms
 @xset s noblank
-@chromium-browser --incognito --kiosk http://localhost/
+@chromium-browser --noerrdialogs --disable-infobars --disable-translate --no-first-run --check-for-update-interval=31536000 --use-fake-ui-for-media-stream --start-fullscreen --kiosk http://127.0.0.1 --incognito --touch-events=enabled
 ```
 **NOTE:** If you're using QR-Code replace `http://localhost/` with your local IP-Adress (e.g. `http://192.168.4.1`), else QR-Code does not work.
 
@@ -300,45 +300,49 @@ You can follow the instructions [here](https://www.geeks3d.com/hacklab/20160108/
 ### How to use a live stream as background at countdown?
 There's different ways depending on your needs and personal setup:
 
-1. If you access Photobooth on your Raspberry Pi you could use a Raspberry Pi Camera. Raspberry Pi Camera will be detected as "device cam".
-    - Admin panel config "Preview mode": `from device cam`
+#### Preview _"from device cam"_
+If you access Photobooth on your Raspberry Pi you could use a Raspberry Pi Camera. Raspberry Pi Camera will be detected as "device cam".
+- Admin panel config "Preview mode": `from device cam`
 
-    **Note:**
-    - Preview `"from device cam"` will always use the camera of the device where Photobooth get opened in a Browser (e.g. on a tablet it will always show the tablet camera while on a smartphone it will always show the smartphone camera instead)!
-    - Secure origin or exception required!
-      - [Prefer Secure Origins For Powerful New Features](https://medium.com/@Carmichaelize/enabling-the-microphone-camera-in-chrome-for-local-unsecure-origins-9c90c3149339)
-      - [Enabling the Microphone/Camera in Chrome for (Local) Unsecure Origins](https://www.chromium.org/Home/chromium-security/prefer-secure-origins-for-powerful-new-features)
-    - Admin panel config *"Device cam takes picture"* can be used to take a picture from this preview instead using gphoto / digicamcontrol / raspistill.
+**Note:**
+- Preview `"from device cam"` will always use the camera of the device where Photobooth get opened in a Browser (e.g. on a tablet it will always show the tablet camera while on a smartphone it will always show the smartphone camera instead)!
+- Secure origin or exception required!
+  - [Prefer Secure Origins For Powerful New Features](https://medium.com/@Carmichaelize/enabling-the-microphone-camera-in-chrome-for-local-unsecure-origins-9c90c3149339)
+  - [Enabling the Microphone/Camera in Chrome for (Local) Unsecure Origins](https://www.chromium.org/Home/chromium-security/prefer-secure-origins-for-powerful-new-features)
+- Admin panel config *"Device cam takes picture"* can be used to take a picture from this preview instead using gphoto / digicamcontrol / raspistill.
 
-2. If you like to have the same preview independent of the device you access Photobooth from:  
-   Make sure to have a stream available you can use (e.g. from your Webcam, Smartphone Camera or Raspberry Pi Camera)
-    - Admin panel config *"Preview mode"*: `from URL`
-    - Admin panel config *"Preview-URL"* example (add needed IP address instead): `url(http://127.0.0.1:8081)`
+#### Preview _"from URL"_
+If you like to have the same preview independent of the device you access Photobooth from:  
+Make sure to have a stream available you can use (e.g. from your Webcam, Smartphone Camera or Raspberry Pi Camera)
+- Admin panel config *"Preview mode"*: `from URL`
+- Admin panel config *"Preview-URL"* example (add needed IP address instead): `url(http://127.0.0.1:8081)`
 
-    **Note**
-    - Do NOT enable *"Device cam takes picture"* in admin panel config!
-    - Capture pictures via `raspistill` won't work if motion is installed!
-    - Requires Photobooth v2.2.1 or later!
+**Note**
+- Do NOT enable *"Device cam takes picture"* in admin panel config!
+- Capture pictures via `raspistill` won't work if motion is installed!
+- Requires Photobooth v2.2.1 or later!
 
-3. A preview can also be done using the video mode of your DSLR (Linux only), but only works if you access Photobooth via [http://localhost](http://localhost) or [http://127.0.0.1](http://localhost):
-    - install all dependencies `sudo apt install ffmpeg v4l2loopback-dkms -y`
-    - create a virtual webcam `modprobe v4l2loopback exclusive_caps=1 card_label="GPhoto2 Webcam"`
-      - `/dev/video0` is used by default, you can use `v4l2-ctl --list-devices` to check which `/dev/*` is the correct one:  
-        If it doesn't match the default setup you need to adjust the `Command to generate a live preview` inside the admin panel!
-    - Give permissions to /dev/video* `sudo gpasswd -a www-data video` (this was done automatically if you used the installation script) and reboot once
-    - Admin panel config *"Preview mode"*: `from gphoto2`
+#### Preview _"from gohoto2"_
+A preview can also be done using the video mode of your DSLR (Linux only), but only works if you access Photobooth via [http://localhost](http://localhost) or [http://127.0.0.1](http://localhost):
+- Liveview **must** be supported for your camera model, [check here](http://gphoto.org/proj/libgphoto2/support.php)
+- install all dependencies `sudo apt install ffmpeg v4l2loopback-dkms -y`
+- create a virtual webcam `sudo modprobe v4l2loopback exclusive_caps=1 card_label="GPhoto2 Webcam"`
+  - `/dev/video0` is used by default, you can use `v4l2-ctl --list-devices` to check which `/dev/*` is the correct one:  
+    If it doesn't match the default setup you need to adjust the `Command to generate a live preview` inside the admin panel!
+- Give permissions to /dev/video* `sudo gpasswd -a www-data video` (this was done automatically if you used the installation script) and reboot once
+- Admin panel config *"Preview mode"*: `from gphoto2`
 
-    **Note**
-    - Requires Photobooth v2.11.0 or later!
-    - You need to access Photobooth directly via [http://localhost](http://localhost) or [http://127.0.0.1](http://localhost)
-    - There's a delay of about 3 seconds until the preview starts, to avoid that disable the `Battery saving mode on gphoto2 live preview` option to generate a preview in background. **This results in a high battery usage and also a general slowdown.**
-    - Sometimes Chromium doesn't detect the V4l2 camera launch from php: you need to run `sudo gphoto2 --stdout --capture-movie | ffmpeg -i - -vcodec rawvideo -pix_fmt yuv420p -threads 0 -f v4l2 /dev/video0` from terminal first and load Chromium a first time with a webpage asking for the camera.
-    - Chromium sometimes has trouble, if there is another webcam like `bcm2835-isp`, it will take it by default instead. Disable other webcams, e.g. `rmmod bcm2835-isp`.
-    - To ensure that the configuration works after reboot add the following lines to `/etc/rc.local` (You have to add these lines bevor `exit 0`):
-      - `modprobe v4l2loopback exclusive_caps=1 card_label="GPhoto2 Webcam"`
-      - `rmmod bcm2835-isp`
-    - Make sure the countdown is long enough to start the preview and free gphoto2 at the end of the countdown to be able to take a picture (2 seconds before the countdown ends).
-      - For best user experience the countdown should be set at least to 8 seconds.
+**Note**
+- Requires Photobooth v2.11.0 or later!
+- You need to access Photobooth directly via [http://localhost](http://localhost) or [http://127.0.0.1](http://localhost), you won't be able to see the preview on a different device (e.g. Tablet)
+- There's a delay of about 3 seconds until the preview starts, to avoid that disable the `Battery saving mode on gphoto2 live preview` option to generate a preview in background. **This results in a high battery usage and also a general slowdown.**
+- Sometimes Chromium doesn't detect the V4l2 camera launch from php: you need to run `sudo gphoto2 --stdout --capture-movie | ffmpeg -i - -vcodec rawvideo -pix_fmt yuv420p -threads 0 -f v4l2 /dev/video0` from terminal first and load Chromium a first time with a webpage asking for the camera.
+- Chromium sometimes has trouble, if there is another webcam like `bcm2835-isp`, it will take it by default instead. Disable other webcams, e.g. ` sudo rmmod bcm2835-isp`.
+- To ensure that the configuration works after reboot add the following lines to `/etc/rc.local` (You have to add these lines bevor `exit 0`):
+  - `modprobe v4l2loopback exclusive_caps=1 card_label="GPhoto2 Webcam"`
+  - `rmmod bcm2835-isp`
+- Make sure the countdown is long enough to start the preview and free gphoto2 at the end of the countdown to be able to take a picture (2 seconds before the countdown ends).
+  - For best user experience the countdown should be set at least to 8 seconds.
 
 <hr>
 
@@ -466,10 +470,99 @@ sudo ./setup-network.sh --clean
 
 This feature will automatically and in regular intervals copy (sync) new pictures to a plugged-in USB stick. Currently works on Raspberry PI OS only.
 
-Use the `install-raspbian.sh` script to get the operating system setup in place. The target USB device is selected through the admin panel
+Use the `install-raspbian.sh` script to get the operating system setup in place.  
+**Note:** If you have declined the question to enable the USB sync file backup while running the `install-raspbian.sh` you need to run the following commands to get the operating system setup done:
+```
+wget https://raw.githubusercontent.com/andi34/photobooth/dev/enable-usb-sync.sh
+sudo bash enable-usb-sync.sh
+
+```
+
+The target USB device is selected through the admin panel.
 
 A USB drive / stick can be identified either by the USB stick label (e.g. `photobooth`), the operating system specific USB device name (e.g. `/dev/sda1`) or the USB device system subsystem name (e.g. `sda`). The preferred method would be the USB stick label (for use of a single USB stick) or the very specific USB device name, for different USB stick use. The default config will look for a drive with the label photobooth. The script only supports one single USB stick connected at a time
 
 Pictures will be synced to the USB stick matched by the pattern, as long as it is  mounted (aka USB stick is plugged in)
 
 Debugging: switch on dev settings for server logs to be written to the `data/tmp` directory of the photobooth installation (i.e. `data/tmp/synctodrive_server.log`).
+
+<hr>
+
+### Raspberry Touchpanel DSI simultaneously with HDMI
+
+When using a touchscreen on DSI and an HDMI screen simultaneously, the touch input is offset. This is because both monitors are recognized as one screen.
+
+The remedy is the following:
+```
+xinput list
+```
+remember the device id=[X] of the touchscreen.
+```
+xinput list-props "Device Name" 
+```
+Get the ID in brackets (Y) of Coordinate Transformation Matrix
+
+```
+xinput set-prop [X] --type=float [Y] c0 0 c1 0 c2 c3 0 0 1
+```
+
+adjust the coding c0 0 c1 0 c2 c3 0 0 1 with your own data.  
+You can get the values of your screens with the following command:
+
+```
+xrandr | grep \* # xrandr uses "*" 
+```
+to identify the screen being used
+```
+c0 = touch_area_width / total_width
+(width of touch screen divided by width of both screens)
+c2 = touch_area_height / total_height
+(height touch screen divided by height of both screens)
+c1 = touch_area_x_offset / total_width
+c3 = touch_area_y_offset / total_height
+```
+and execute the above command again with your own coding!
+
+Example:
+
+```
+xinput set-prop 6 --type=float 136 0.3478260869565217 0 0 0.55555555555556 0 0 0 1
+```
+
+Now unfortunately the settings are only valid for the current session. So create the following desktop startup file with your own values:
+
+```
+nano ~/.config/autostart/touch.desktop
+```
+
+```
+[Desktop Entry]
+Name=TouchSettingsAutostart
+Comment=Set up touch screen setting when starting desktop
+Type=Application
+## Adapt command to own values
+Exec=xinput set-prop 6 --type=float 136 0.3478260869565217 0 0 0 0.55555555555556 0 0 0 1
+Terminal=false
+```
+
+If you want to use the touchscreen as photobooth and the second monitor for the standalone slideshow for example, open the autostart file:
+```
+sudo nano /etc/xdg/lxsession/LXDE-pi/autostart
+```
+and enter/adjust the @chromium-browser entries as followed (adjust the value _1920_ to your own resolution and URL if necessary):
+```
+@chromium-browser --new-window --start-fullscreen --kiosk http://localhost --window-position=1920,0 --user-data-dir=Default
+@chromium-browser --new-window --start-fullscreen --kiosk http://localhost/slideshow/ --window-position=0,0 --user-data-dir='Profile 1'
+```
+
+<hr>
+
+### How to administer CUPS remotely using the web interface?
+
+By default the CUPS webinterface can only be accessed via [http://localhost:631](http://localhost:631) from your local machine.  
+To remote access CUPS from other clients you need to run the following commands:
+```
+sudo cupsctl --remote-any
+sudo /etc/init.d/cups restart
+```
+

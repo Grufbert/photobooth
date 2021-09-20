@@ -8,6 +8,8 @@ set -e
 
 RUNNING_ON_PI=true
 SILENT_INSTALL=false
+DATE=$(date +"%Y%m%d-%H-%M")
+IPADDRESS=$(hostname -I | cut -d " " -f 1)
 
 if [ ! -z $1 ]; then
     webserver=$1
@@ -69,8 +71,6 @@ if [[ ! -z $1 && ("$1" = "nginx" || "$1" = "lighttpd") ]]; then
 else
     info "### Used webserver: Apache Webserver"
 fi
-
-
 
 COMMON_PACKAGES=(
     'curl'
@@ -216,23 +216,43 @@ for package in "${COMMON_PACKAGES[@]}"; do
 done
 
 echo -e "\033[0;33m### Is Photobooth the only website on this system?"
-ask_yes_no "### Warning: If typing y, the whole /var/www/html folder will be removed! [y/N] " "Y"
+echo -e "### NOTE: If typing y, the whole /var/www/html folder will be renamed"
+ask_yes_no "          to /var/www/html-$DATE if exists! [y/N] " "Y"
 echo -e "\033[0m"
 if [ "$REPLY" != "${REPLY#[Yy]}" ] ;then
     info "### Ok, we will replace the html folder with the Photobooth."
     cd /var/www/
-    rm -rf html
     INSTALLFOLDER="html"
-    INSTALLFOLDERPATH="/var/www/html/"
+    INSTALLFOLDERPATH="/var/www/html"
+    if [ -d "$INSTALLFOLDERPATH" ]; then
+        BACKUPFOLDER="html-$DATE"
+        info "${INSTALLFOLDERPATH} found. Creating backup as ${BACKUPFOLDER}."
+        mv "$INSTALLFOLDER" "$BACKUPFOLDER"
+    else
+        info "$INSTALLFOLDERPATH not found."
+    fi
 else
     info "### Ok, we will install Photobooth into /var/www/html/photobooth."
     cd /var/www/html/
     INSTALLFOLDER="photobooth"
-    INSTALLFOLDERPATH="/var/www/html/$INSTALLFOLDER/"
+    INSTALLFOLDERPATH="/var/www/html/$INSTALLFOLDER"
+    if [ -d "$INSTALLFOLDERPATH" ]; then
+        BACKUPFOLDER="photobooth-$DATE"
+        info "${INSTALLFOLDERPATH} found. Creating backup as ${BACKUPFOLDER}."
+        mv "$INSTALLFOLDER" "$BACKUPFOLDER"
+    else
+        info "$INSTALLFOLDERPATH not found."
+    fi
+fi
+
+if [ "$INSTALLFOLDER" == "photobooth" ] ;then
+    URL="http://$IPADDRESS/photobooth"
+else
+    URL="http://$IPADDRESS"
 fi
 
 info "### Now we are going to install Photobooth."
-git clone https://github.com/metropo/photobooth $INSTALLFOLDER
+git clone https://github.com/andi34/photobooth $INSTALLFOLDER
 cd $INSTALLFOLDERPATH
 LATEST_VERSION=$( git describe --tags `git rev-list --tags --max-count=1` )
 
@@ -273,7 +293,7 @@ yarn build
 # Pi specific setup start
 if [ "$RUNNING_ON_PI" = true ]; then
 echo -e "\033[0;33m### Do you like to use a Raspberry Pi (HQ) Camera to take pictures?"
-ask_yes_no "### If yes, this will generate a personal configuration with all needed changes. [y/N] " "Y"
+ask_yes_no "### If yes, this will generate a personal configuration with all needed changes. [y/N] " "N"
 echo -e "\033[0m"
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
@@ -292,7 +312,7 @@ fi
 # Pi specific setup end
 
 info "### Setting permissions."
-chown -R www-data:www-data $INSTALLFOLDERPATH
+chown -R www-data:www-data $INSTALLFOLDERPATH/
 gpasswd -a www-data plugdev
 gpasswd -a www-data video
 
@@ -311,12 +331,29 @@ then
     apt install -y cups
     gpasswd -a www-data lp
     gpasswd -a www-data lpadmin
+
+    echo -e "\033[0;33m### By default CUPS can only be accessed via localhost."
+    ask_yes_no "### You like to allow remote access to CUPS over IP from all devices inside your network? [y/N] " "Y"
+    echo -e "\033[0m"
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+        info "### Access to CUPS will be allowed from all devices in your network."
+        cupsctl --remote-any
+        /etc/init.d/cups restart
+    fi
 fi
+
+# Add configuration required for www-data to be able to initiate system shutdown / reboot
+info "### Note: In order for the shutdown and reboot button to work we install /etc/sudoers.d/020_www-data-shutdown"
+cat > /etc/sudoers.d/020_www-data-shutdown << EOF
+# Photobooth buttons for www-data to shutdown or reboot the system from admin panel or via remotebuzzer
+www-data ALL=(ALL) NOPASSWD: /sbin/shutdown
+EOF
 
 # Pi specific setup start
 if [ "$RUNNING_ON_PI" = true ]; then
 echo -e "\033[0;33m### You probably like to start the browser on every start."
-ask_yes_no "### Open Chromium in Kiosk Mode at every boot and hide the mouse cursor? [y/N] " "Y"
+ask_yes_no "### Open Chromium in Kiosk Mode at every boot and hide the mouse cursor? [y/N] " "N"
 echo -e "\033[0m"
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
@@ -327,7 +364,7 @@ then
 @xset s off
 @xset -dpms
 @xset s noblank
-@chromium-browser --incognito --kiosk http://localhost/
+@chromium-browser --noerrdialogs --disable-infobars --disable-translate --no-first-run --check-for-update-interval=31536000 --use-fake-ui-for-media-stream --start-fullscreen --kiosk http://127.0.0.1 --incognito --touch-events=enabled
 
 @unclutter -idle 3
 
@@ -367,15 +404,12 @@ cat >> /boot/config.txt  << EOF
 gpio=16,17,20,21,22,26,27=pu
 # Photobooth End
 EOF
-# add configuration required for www-data to be able to initiate system shutdown
-info "### Note: In order for the shutdown button to work we install /etc/sudoers.d/020_www-data-shutdown"
-cat >> /etc/sudoers.d/020_www-data-shutdown << EOF
-# Photobooth Remotebuzzer shutdown button for www-data to shutdown the system
-www-data ALL=(ALL) NOPASSWD: /sbin/shutdown
-EOF
 
 # update artifacts in user configuration from old remotebuzzer implementation
-sed -i '/remotebuzzer/{n;n;s/enabled/usebuttons/}' $INSTALLFOLDERPATH/config/my.config.inc.php
+if [ -f "$INSTALLFOLDERPATH/config/my.config.inc.php" ]; then
+    sed -i '/remotebuzzer/{n;n;s/enabled/usebuttons/}' $INSTALLFOLDERPATH/config/my.config.inc.php
+fi
+
 fi
 # remotebuzzer config depending on version end
 
@@ -413,6 +447,9 @@ fi
 # Pi specific setup end
 
 info "### Congratulations you finished the install process."
+info "    Photobooth can be accessed at:"
+info "        $URL"
+info "###"
 info "### Have fun with your Photobooth, but first restart your device."
 
 echo -e "\033[0;33m"

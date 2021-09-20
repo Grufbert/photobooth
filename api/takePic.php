@@ -3,26 +3,12 @@ header('Content-Type: application/json');
 
 require_once '../lib/config.php';
 require_once '../lib/db.php';
-
-function logError($data) {
-    global $config;
-    $logfile = $config['foldersAbs']['tmp'] . DIRECTORY_SEPARATOR . $config['take_picture']['logfile'];
-
-    $file_data = date('c') . ":\n" . print_r($data, true) . "\n";
-    if (is_file($logfile)) {
-        $file_data .= file_get_contents($logfile);
-    }
-    file_put_contents($logfile, $file_data);
-
-    //$fp = fopen($logfile, 'a'); //opens file in append mode.
-    //fwrite($fp, date('c') . ":\n\t" . $message . "\n");
-    //fclose($fp);
-}
+require_once '../lib/log.php';
 
 function takePicture($filename) {
     global $config;
 
-    if ($config['dev']['enabled']) {
+    if ($config['dev']['demo_images']) {
         $demoFolder = __DIR__ . '/../resources/img/demo/';
         $devImg = array_diff(scandir($demoFolder), ['.', '..']);
         copy($demoFolder . $devImg[array_rand($devImg)], $filename);
@@ -127,13 +113,12 @@ if ($_POST['style'] === 'photo') {
     }
 
     $basecollage = substr($file, 0, -4);
-    $collage_name = $basecollage . '-' . date('Ymd_His') . '.jpg';
+    $collage_name = $basecollage . '-' . $number . '.jpg';
 
     $basename = substr($filename_tmp, 0, -4);
     $filename = $basename . '-' . $number . '.jpg';
 
     takePicture($filename);
-    copy($filename, $config['foldersAbs']['tmp'] . DIRECTORY_SEPARATOR . $collage_name);
 
     die(
         json_encode([
