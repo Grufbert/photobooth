@@ -50,7 +50,9 @@ function customize_image() {
     vim \
     nano \
     less \
-    openssh-server
+    openssh-server \
+    vlc \
+    ffmpeg
 
     # purge
     apt-get purge -y \
