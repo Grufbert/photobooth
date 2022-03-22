@@ -508,7 +508,7 @@ echo -e "    Versions available: "
 echo -e "    1 Install latest stable Release (git)"
 echo -e "    2 Install latest development version (git)"
 echo -e "    3 Install latest stable Release (package)"
-ask_yes_no "Please enter your choice" "1"
+ask_yes_no "Please enter your choice" "2"
 echo -e "\033[0m"
 if [[ $REPLY =~ ^[1]$ ]]; then
     info "### We are installing last stable Release via git."
