@@ -54,7 +54,8 @@ function customize_image() {
     vlc \
     ffmpeg \
     clang \
-    make
+    make \
+    g++
 
     # purge
     apt-get purge -y \
