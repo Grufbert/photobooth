@@ -342,7 +342,7 @@ general_setup() {
 start_install() {
     info "### Now we are going to install Photobooth."
     if [ $GIT_INSTALL = true ]; then
-        git clone https://github.com/andi34/photobooth $INSTALLFOLDER
+        git clone https://github.com/metropo/photobooth $INSTALLFOLDER
         cd $INSTALLFOLDERPATH
 
         info "### We are installing last development version via git."
@@ -356,7 +356,7 @@ start_install() {
         yarn build
     else
         info "### We are downloading the latest release and extracting it to $INSTALLFOLDERPATH."
-        curl -s https://api.github.com/repos/andi34/photobooth/releases/latest |
+        curl -s https://api.github.com/repos/metropo/photobooth/releases/latest |
             jq '.assets[].browser_download_url | select(endswith(".tar.gz"))' |
             xargs curl -L --output /tmp/photobooth-latest.tar.gz
 
