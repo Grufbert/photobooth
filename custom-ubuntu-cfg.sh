@@ -52,7 +52,9 @@ function customize_image() {
     less \
     openssh-server \
     vlc \
-    ffmpeg
+    ffmpeg \
+    clang \
+    make
 
     # purge
     apt-get purge -y \
