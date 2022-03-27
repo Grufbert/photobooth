@@ -15,7 +15,7 @@ jobs:
       - name: Update system
         run: |
           sudo apt update
-          sudo apt upgrade -y
+#          sudo apt upgrade -y
       - name: Checkout repository and submodules
         uses: actions/checkout@v3
         with:
@@ -45,7 +45,7 @@ jobs:
           export ENABLE_SSH=1
           
           chmod +x pi-gen/build.sh
-          pi-gen/build.sh
+          sudo pi-gen/build.sh
       - name: Last Job
         run: |
           pwd
@@ -70,12 +70,3 @@ jobs:
 #          local_path: 'vendor/CustomUbuntu/scripts/photobooth.iso.gz'
 #          remote_path: './'
 #          args: '-o ConnectTimeout=5'
-#      - name: Release
-#        uses: softprops/action-gh-release@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          tag_name: focal-latest
-#          prerelease: true
-#          files: |
-#            scripts/ubuntu-from-scratch.iso.gz
