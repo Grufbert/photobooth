@@ -18,6 +18,8 @@ jobs:
           submodules: true
       - name: Build
         run: |
+          sudo apt update
+          sudo apt upgrade -y
           git clone --depth 1 https://github.com/RPI-Distro/pi-gen.git
           cat pi-gen/depends | rev | cut -d: -f1 | rev | xargs sudo apt install -y
           pwd
