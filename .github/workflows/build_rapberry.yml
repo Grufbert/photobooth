@@ -1,4 +1,4 @@
-name: build-focal
+name: build-raspberry
 
 on:
 #  push:
