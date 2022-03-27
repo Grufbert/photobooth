@@ -12,18 +12,28 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - name: Checkout repository and submodules
-        uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Build
+      - name: Update system
         run: |
           sudo apt update
           sudo apt upgrade -y
-          git clone --depth 1 https://github.com/RPI-Distro/pi-gen.git
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          path: photobooth
+      - name: Checkout pi-gen
+        uses: actions/checkout@v3
+        with:
+          repository: RPI-Distro/pi-gen
+          path: pi-gen
+      - name: Build
+        run: |
+          #git clone --depth 1 https://github.com/RPI-Distro/pi-gen.git
           cat pi-gen/depends | rev | cut -d: -f1 | rev | xargs sudo apt install -y
           pwd
           ls -la
+          ls -la pi-gen
+          ls -la photobooth
 #      - name: Compress
 #        run: |
 #          cd vendor/CustomUbuntu/scripts
