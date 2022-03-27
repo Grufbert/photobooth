@@ -32,7 +32,7 @@ jobs:
       - name: Install pi-gen dependencies
         run: |
           cat pi-gen/depends | rev | cut -d: -f1 | rev | xargs sudo apt install -y
-          sudo apt-get install python-pip
+          sudo apt-get install python3-pip
       - name: Run pi-gen
         run: |
           chmod +x pi-gen/build.sh
