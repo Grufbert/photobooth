@@ -15,7 +15,10 @@ jobs:
       - name: Update system
         run: |
           sudo apt update
-#          sudo apt upgrade -y
+          sudo apt-get install software-properties-common
+          sudo apt-add-repository universe
+          sudo apt update
+          sudo apt upgrade -y
       - name: Checkout repository and submodules
         uses: actions/checkout@v3
         with:
@@ -28,8 +31,8 @@ jobs:
           path: pi-gen
       - name: Install pi-gen dependencies
         run: |
-          #git clone --depth 1 https://github.com/RPI-Distro/pi-gen.git
           cat pi-gen/depends | rev | cut -d: -f1 | rev | xargs sudo apt install -y
+          sudo apt-get install python-pip
       - name: Run pi-gen
         run: |
           chmod +x pi-gen/build.sh
