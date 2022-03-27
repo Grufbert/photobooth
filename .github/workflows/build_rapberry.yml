@@ -26,10 +26,28 @@ jobs:
         with:
           repository: RPI-Distro/pi-gen
           path: pi-gen
-      - name: Build
+      - name: Install pi-gen dependencies
         run: |
           #git clone --depth 1 https://github.com/RPI-Distro/pi-gen.git
           cat pi-gen/depends | rev | cut -d: -f1 | rev | xargs sudo apt install -y
+      - name: Run pi-gen
+        run: |
+          export IMG_NAME=photobooth-pi
+          export RELEASE=buster
+          export DEPLOY_ZIP=1
+          export LOCALE_DEFAULT=en_US.UTF-8
+          export TARGET_HOSTNAME=photobooth-pi
+          export KEYBOARD_KEYMAP=us
+          export KEYBOARD_LAYOUT="English (US)"
+          export TIMEZONE_DEFAULT=America/New_York
+          export FIRST_USER_NAME=photobooth
+          export FIRST_USER_PASS=photobooth
+          export ENABLE_SSH=1
+          
+          chmod +x pi-gen/build.sh
+          pi-gen/build.sh
+      - name: Last Job
+        run: |
           pwd
           ls -la
           ls -la pi-gen
