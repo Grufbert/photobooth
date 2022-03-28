@@ -19,11 +19,11 @@ jobs:
 #          sudo apt-get install software-properties-common
 #          sudo apt-add-repository universe
 #          sudo apt update
-#      - name: Checkout repository and submodules
-#        uses: actions/checkout@v3
-#        with:
-#          submodules: true
-#          path: photobooth
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          path: photobooth
 #      - name: Checkout pi-gen
 #        uses: actions/checkout@v3
 #        with:
