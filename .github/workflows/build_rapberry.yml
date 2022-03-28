@@ -32,7 +32,10 @@ jobs:
       - name: Install pi-gen dependencies
         run: |
           cat pi-gen/depends | rev | cut -d: -f1 | rev | xargs sudo apt install -y
-          sudo apt-get install python3-pip
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y coreutils quilt parted qemu-utils qemu-user-static debootstrap zerofree zip dosfstools libarchive-tools libcap2-bin grep rsync xz-utils file git curl bc
       - name: Run pi-gen
         run: |
           chmod +x pi-gen/build.sh
