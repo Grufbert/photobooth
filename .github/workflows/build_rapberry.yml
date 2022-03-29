@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Update system
@@ -35,14 +35,14 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y coreutils quilt parted qemu-utils qemu-user-static debootstrap zerofree zip dosfstools libarchive-tools libcap2-bin grep rsync xz-utils file git curl bc python-is-python3
+          sudo apt-get install -y coreutils quilt parted qemu-utils qemu-user-static debootstrap zerofree zip dosfstools libarchive-tools libcap2-bin grep rsync xz-utils file git curl bc
       - name: Run pi-gen
         run: |
           git clone https://github.com/RPi-Distro/pi-gen.git
           touch ./pi-gen/stage3/SKIP ./pi-gen/stage4/SKIP ./pi-gen/stage4/SKIP_IMAGES
           touch ./pi-gen/stage5/SKIP ./pi-gen/stage5/SKIP_IMAGES
           cd pi-gen
-          sudo ./build.sh -c ../photobooth/custom-pi-config
+          sudo ./build.sh
       - name: Last Job
         run: |
           pwd
