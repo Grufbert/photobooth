@@ -34,13 +34,16 @@ jobs:
 #          cat pi-gen/depends | rev | cut -d: -f1 | rev | xargs sudo apt install -y
       - name: Install dependencies
         run: |
-          git clone https://github.com/RPi-Distro/pi-gen.git
           sudo apt-get update
           sudo apt-get install -y coreutils quilt parted qemu-utils qemu-user-static debootstrap zerofree zip dosfstools libarchive-tools libcap2-bin grep rsync xz-utils file git curl bc
       - name: Run pi-gen
         run: |
-          chmod +x pi-gen/build.sh
-          sudo pi-gen/build.sh -c photobooth/custom-pi-config
+          git clone https://github.com/RPi-Distro/pi-gen.git
+          touch ./pi-gen/stage3/SKIP ./pi-gen/stage4/SKIP ./pi-gen/stage4/SKIP_IMAGES
+          touch ./pi-gen/stage5/SKIP ./pi-gen/stage5/SKIP_IMAGES
+          cp -R stage-hyperbian pi-gen/stage-hyperbian
+          cp config pi-gen/config && cd pi-gen
+          sudo ./build.sh
       - name: Last Job
         run: |
           pwd
