@@ -41,7 +41,7 @@ jobs:
           git clone https://github.com/RPi-Distro/pi-gen.git
           touch ./pi-gen/stage3/SKIP ./pi-gen/stage4/SKIP ./pi-gen/stage4/SKIP_IMAGES
           touch ./pi-gen/stage5/SKIP ./pi-gen/stage5/SKIP_IMAGES
-          cp -R stage-hyperbian pi-gen/stage-hyperbian
+          cp -R photobooth pi-gen/photobooth
           cp config pi-gen/config && cd pi-gen
           sudo ./build.sh
       - name: Last Job
